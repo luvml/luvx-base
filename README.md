@@ -252,8 +252,8 @@ var jsonDoc = object(name("MyApp"), version(2.0));
 
 ```xml
 <dependency>
-    <groupId>io.github.xyz-jphil</groupId>
-    <artifactId>xyz-jphil-luvx-base</artifactId>
+    <groupId>io.github.luvml</groupId>
+    <artifactId>luvx-base</artifactId>
     <version>2.0</version>
 </dependency>
 ```
@@ -282,7 +282,7 @@ String result = processFragment(page);
 
 ### Run the Examples
 Some examples (possibly outdated) are packaged separately in 
-https://github.com/xyz-jphil/xyz-jphil-luvx-examples.git
+https://github.com/luvml/luvx-examples.git
 
 
 ## Why LuvX/LuvML?
