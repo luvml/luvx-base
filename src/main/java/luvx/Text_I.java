@@ -30,6 +30,16 @@ public interface Text_I<I extends Text_I<I>>
     }
 
     /**
+     * UNSAFE escape hatch: true means a renderer must emit {@link #wholeText()} verbatim --
+     * no HTML escaping, no whitespace normalization. False (the default) is the safe,
+     * normal case. Only a text node the caller has deliberately marked raw (see luvml's
+     * {@code T.raw(...)}) should ever return true; never derive this from content.
+     */
+    default boolean isRaw() {
+        return false;
+    }
+
+    /**
      * Generic accessor for escapable text content.
      * Delegates to text() for consistency with HasEscapableTextContent interface.
      */
@@ -55,21 +65,55 @@ public interface Text_I<I extends Text_I<I>>
             return text;
         }
 
-        var sb = new StringBuilder(text.length());
-        boolean lastWasWhite = false;
-
-        for (int i = 0; i < text.length(); i++) {
+        // Fast path: most authored text is already normalized (single spaces, no tabs/
+        // newlines/nbsp, no invisible chars) -- detect that in one pass and return the
+        // original String untouched, with zero allocation, instead of always rebuilding
+        // it character-by-character through a StringBuilder.
+        var len = text.length();
+        var lastWasWhite = false;
+        var needsChange = false;
+        for (int i = 0; i < len; i++) {
             char c = text.charAt(i);
             if (isActuallyWhitespace(c)) {
+                if (c != ' ' || lastWasWhite) {
+                    needsChange = true;
+                    break;
+                }
+                lastWasWhite = true;
+            } else if (isInvisibleChar(c)) {
+                needsChange = true;
+                break;
+            } else {
+                lastWasWhite = false;
+            }
+        }
+        if (!needsChange) {
+            return text;
+        }
+
+        // Bulk-copy runs of ordinary characters with sb.append(text, from, to) instead of
+        // appending one char at a time -- most text is not whitespace, so this is the
+        // dominant path even when *some* normalization is needed somewhere in the string.
+        var sb = new StringBuilder(len);
+        lastWasWhite = false;
+        var runStart = 0;
+        for (int i = 0; i < len; i++) {
+            char c = text.charAt(i);
+            if (isActuallyWhitespace(c)) {
+                if (i > runStart) sb.append(text, runStart, i);
                 if (!lastWasWhite) {
                     sb.append(' ');
                     lastWasWhite = true;
                 }
-            } else if (!isInvisibleChar(c)) {
-                sb.append(c);
+                runStart = i + 1;
+            } else if (isInvisibleChar(c)) {
+                if (i > runStart) sb.append(text, runStart, i);
+                runStart = i + 1;
+            } else {
                 lastWasWhite = false;
             }
         }
+        if (len > runStart) sb.append(text, runStart, len);
         return sb.toString();
     }
 

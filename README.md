@@ -5,7 +5,7 @@
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.8+-blue.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/Version-2.1-blue.svg)]()
 
 ## What is LuvX?
 
@@ -254,7 +254,7 @@ var jsonDoc = object(name("MyApp"), version(2.0));
 <dependency>
     <groupId>io.github.luvml</groupId>
     <artifactId>luvx-base</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
 </dependency>
 ```
 
